@@ -25,11 +25,11 @@ namespace Order.Outbox.Table.Publisher.Service
             }
         }
 
-        public static async Task<IEnumerable> QueryAsync<T>(string sql) =>
+        public static async Task<IEnumerable<T>> QueryAsync<T>(string sql) =>
             await _dbConnection.QueryAsync<T>(sql); //Select sorgularımız bu fonk ile çalıştırıcaz.
 
         public static async Task<int> ExecuteAsync(string sql) =>
-            await _dbConnection.ExecuteAsync(sql); //İnsert,Update,Delete işlemlerini bu fonk ile  çalıştırıcaz.
+            await _dbConnection.ExecuteAsync(sql); //Insert,Update,Delete işlemlerini bu fonk ile  çalıştırıcaz.
 
 
         public static void DataReaderReady() => _dataReaderState = true; // ne zaman bu fonk tetiklenir dataReader hazır artık demektir.

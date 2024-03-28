@@ -19,7 +19,7 @@ builder.Services.AddQuartz(configurator =>
     configurator.AddJob<OrderOutboxPublishJob>(options => options.WithIdentity(jobKey)); // Job'ı ekledik.
 
     TriggerKey triggerKey = new("OrderOutboxPublishTrigger");
-    configurator.AddTrigger(options => options.ForJob(jobKey) // Job'ı tetikleyecek Trigger'ı ekledik.
+    configurator.AddTrigger(options => options.ForJob(jobKey) // Job'ı(OrderOutboxPublishJob) tetikleyecek Trigger'ı(OrderOutboxPublishTrigger) ekledik.
     .WithIdentity(triggerKey)
     .StartAt(DateTime.UtcNow) //Trigger'ın(Job'ın) ne zaman tetikleneceğini söyledik.
     .WithSimpleSchedule(builder => builder.WithIntervalInSeconds(5) // Trigger'ın(Job'ın) tetiklenme periyodunu belirttik 5 saniyede 1
@@ -28,8 +28,6 @@ builder.Services.AddQuartz(configurator =>
 });
 
 builder.Services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true); //Yapılan bu Job çalışmasını host ediyoruz
-
-builder.Services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
 
 var host = builder.Build();
 host.Run();
