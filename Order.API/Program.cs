@@ -70,7 +70,7 @@ app.MapPost("/create-order", async (CreateOrderVM model, OrderDbContext orderDbC
         OccuredOn = DateTime.UtcNow,
         ProcessedDate = null,
         Payload = JsonSerializer.Serialize(orderCreatedEvent), // Burda orderOutbox'ı OrderOutboxes tablosundaki Payload kolonuna json tipinde  bastık DB de
-        Type = nameof(orderCreatedEvent)
+        Type = nameof(OrderCreatedEvent)
     };
 
     orderDbContext.OrderOutboxes.Add(orderOutbox);

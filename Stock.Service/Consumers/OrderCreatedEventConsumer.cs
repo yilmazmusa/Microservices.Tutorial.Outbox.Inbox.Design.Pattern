@@ -7,14 +7,83 @@ using System.Text.Json;
 
 namespace Stock.Service.Consumers
 {
-    public class OrderCreatedEventConsumer : IConsumer<OrderCreatedEvent>
+    public class OrderCreatedEventConsumer(StockDbContext stockDbContext) : IConsumer<OrderCreatedEvent>
     {
 
 
         public async Task Consume(ConsumeContext<OrderCreatedEvent> context)
         {
-            await Console.Out.WriteLineAsync(JsonSerializer.Serialize(context.Message));
+
+            await stockDbContext.OrderInboxes.AddAsync(new()
+            {
+                Processed = false,
+                Payload = JsonSerializer.Serialize(context.Message) //Serilize ederken tip önemli değildir.
+            });
+
+            await stockDbContext.SaveChangesAsync();
+
+
+            List<OrderInbox> orderInboxes = await stockDbContext.OrderInboxes
+                .Where(x => x.Processed == false)
+                .ToListAsync();
+
+            foreach (var orderInbox in orderInboxes)
+            {
+                if (orderInbox != null)
+                {
+                    OrderCreatedEvent orderCreatedEvent = JsonSerializer.Deserialize<OrderCreatedEvent>(orderInbox.Payload); //Derilize ederken tip önemli.
+                    Console.WriteLine($"{orderCreatedEvent.OrderId} order id değerine karşılık olan siparişin stok işlemleri başarıyla tamamlanmıştır.");
+
+                    orderInbox.Processed = true; // işlenen eventin/mesajın değerini false tan true ya çektik.
+
+                    await stockDbContext.SaveChangesAsync(); // her satır için yapılan Processed = true işlemi için savechanges yapıyorum
+                }
+            }
+
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
         //public async Task Consume(ConsumeContext<OrderCreatedEvent> context)

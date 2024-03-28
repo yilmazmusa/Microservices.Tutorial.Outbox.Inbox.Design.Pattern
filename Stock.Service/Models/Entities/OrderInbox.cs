@@ -2,10 +2,10 @@
 
 namespace Stock.Service.Models.Entities
 {
-    public class OrderInbox
+    public class OrderInbox //Inbox table aslında burası
     {
         [Key]
-        public Guid IdempotentToken { get; set; }
+        public int Id { get; set; }
         public bool Processed { get; set; }
         public string Payload { get; set; }
     }
