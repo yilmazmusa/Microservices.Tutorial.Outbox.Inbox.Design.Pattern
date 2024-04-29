@@ -14,7 +14,8 @@ namespace Order.Outbox.Table.Publisher.Service.Jobs
             if (OrderOutboxSingletonDatabase.DataReaderState) // db nin durumu true ise yani hazır ise
             {
                 OrderOutboxSingletonDatabase.DataReaderBusy(); // işlem yapacağımız için db nin durumunu yoğuna çektik
-                List<OrderOutbox> orderOutboxes = (await OrderOutboxSingletonDatabase.QueryAsync<OrderOutbox>($@"SELECT * FROM ORDEROUTBOXES WHERE PROCESSEDDATE IS NULL ORDER BY OCCUREDON ASC")).ToList();// db de ProcessedDate kolonu null olan dataları getiridk
+                List<OrderOutbox> orderOutboxes = (await OrderOutboxSingletonDatabase.QueryAsync<OrderOutbox>($@"SELECT * FROM ORDEROUTBOXES WHERE PROCESSEDDATE IS NULL
+                                                   ORDER BY OCCUREDON ASC")).ToList();// db de ProcessedDate kolonu null olan dataları getiridk
 
                 foreach (var orderOutbox in orderOutboxes)
                 {
@@ -27,7 +28,7 @@ namespace Order.Outbox.Table.Publisher.Service.Jobs
                             await publishEndpoint.Publish(orderCreatedEvent); // orderCreatedEvent'i MessageBroker ile publish ettik.
 
                             //ProcessedDate'i boş olan datayı işledik yukarda ve şimdide ProcessedDate kolonunu işlendiği tarihle doldurduk.
-                            OrderOutboxSingletonDatabase.ExecuteAsync($@"UPDATE  OrderOutboxes SET ProcessedDate = GETDATE() WHERE Id = '{orderOutbox.Id}'");
+                            OrderOutboxSingletonDatabase.ExecuteAsync($@"UPDATE  OrderOutboxes SET ProcessedDate = GETDATE() WHERE IdempotentToken = '{orderOutbox.IdempotentToken}'");
                         }
                     }
                 }
